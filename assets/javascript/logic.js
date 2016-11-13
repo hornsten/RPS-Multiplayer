@@ -8,6 +8,8 @@ var config = {
 };
 firebase.initializeApp(config);
 
+
+
 //Sign-in and Authorization
 
 firebase.auth().signInAnonymously().catch(function(error) {
@@ -29,3 +31,19 @@ firebase.auth().onAuthStateChanged(function(user) {
     }
     // ...
 });
+
+// Buttons are functioning-----------------------------------
+$('#start').on('click', holla);
+$('#chat').on('click', holla);
+
+function holla() {
+    alert('hey!');
+}
+//-----------------------------------------------------------
+
+// Divs targeted---------------------------------------------
+$('#player-1').html('<h2>Player 1</h2>');
+$('#game-results').html('<h2>Results</h2>');
+$('#player-2').html('<h2>Player 2</h2>');
+$('#chat-log').html('<p>braaaaa u got served</p>');
+//-----------------------------------------------------------
