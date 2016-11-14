@@ -23,6 +23,8 @@ var losses = 0;
 
 $('#start').on('click', function() {
 
+
+
     if (numPlayers > 1) {
 
         alert('Too many players.  Try again later');
@@ -30,6 +32,7 @@ $('#start').on('click', function() {
         $('#username').val("");
 
     } else if (numPlayers === 0) {
+        firebase.auth().signInAnonymously();
 
         username = $('#username').val().trim();
 
@@ -69,6 +72,13 @@ $('#start').on('click', function() {
     }
     return false;
 
+});
+
+//Auth Listener
+
+firebase.auth().onAuthStateChanged(firebaseUser => {
+
+    console.log(firebaseUser);
 });
 
 
