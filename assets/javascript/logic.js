@@ -8,7 +8,10 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var database = firebase.database();
+
+var database = firebase.database().ref();
+
+
 var username = "";
 var dateAdded = "";
 var numPlayers = 0;
@@ -23,43 +26,52 @@ $('#start').on('click', function() {
     if (numPlayers > 1) {
 
         alert('Too many players.  Try again later');
-    } else {
+
+        $('#username').val("");
+
+    } else if (numPlayers === 0) {
+
         username = $('#username').val().trim();
 
         $('#username').val("");
-        numPlayers++;
-        console.log(numPlayers);
-        database.ref().push({
+
+        database.child("players").child("1").set({
+
             username: username,
             dateAdded: firebase.database.ServerValue.TIMESTAMP,
             wins: wins,
             losses: losses
 
         });
+        $('#player-1').html('<h2>' + username + '</h2>')
+            .append('<h4>Wins: ' + wins + ' </h4>')
+            .append('<h4>Losses:' + losses + ' </h4>');
+        numPlayers++;
 
-    };
+    } else if (numPlayers === 1) {
+
+        username = $('#username').val().trim();
+
+        $('#username').val("");
+        database.child("players").child("2").set({
+
+            username: username,
+            dateAdded: firebase.database.ServerValue.TIMESTAMP,
+            wins: wins,
+            losses: losses
+
+
+        });
+        $('#player-2').html('<h2>' + username + '</h2>')
+            .append('<h4>Wins: ' + wins + ' </h4>')
+            .append('<h4>Losses:' + losses + ' </h4>');
+        numPlayers++;
+    }
     return false;
+
 });
 
-// firebase.auth().signInAnonymously().catch(function(error) {
-//     // Handle Errors here.
-//     var errorCode = error.code;
-//     var errorMessage = error.message;
-//     // ...
-// });
 
-// firebase.auth().onAuthStateChanged(function(user) {
-//     if (user) {
-//         // User is signed in.
-//         var isAnonymous = user.isAnonymous;
-//         var uid = user.uid;
-//         // ...
-//     } else {
-//         // User is signed out.
-//         // ...
-//     }
-//     // ...
-// });
 
 
 
