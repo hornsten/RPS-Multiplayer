@@ -41,10 +41,9 @@ function signIn() {
         gameStarted: true
     });
 
+    $('#status').html('<h4>Hi, ' + player1 + '! You are Player 1</h4>');
 
 };
-
-
 
 //Firebase watcher + initial loader HINT: .on("value")
 database.child('players').child('1').on("value", function(snapshot) {
@@ -84,8 +83,9 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 
 
 
-$('#join-game').on('click', function() {
+$('#join-game').on('click', joinGame);
 
+function joinGame() {
     firebase.auth().signInAnonymously();
 
     var uid2 = firebase.auth().currentUser.uid;
@@ -98,14 +98,15 @@ $('#join-game').on('click', function() {
         wins2: wins2,
         losses2: losses2,
         uid2: uid2,
-        gameStarted: true
+        gameClosed: true
     });
 
 
     $('#join-game').hide();
     $('#joiner').hide();
+    $('#status').html('<h4>Hi, ' + player2 + '! You are Player 2</h4>');
 
-});
+};
 
 //Firebase watcher + initial loader HINT: .on("value")
 database.child('players').child('2').on("value", function(snapshot2) {
