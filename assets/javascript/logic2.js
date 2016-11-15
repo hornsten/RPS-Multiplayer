@@ -18,11 +18,13 @@ var losses1 = 0;
 var gameStarted = false;
 var gameClosed = false;
 
-
 $('#join-game').hide();
 $('#joiner').hide();
 
-$('#start').on('click', function() {
+$('#start').on('click', signIn);
+
+
+function signIn() {
 
     firebase.auth().signInAnonymously();
 
@@ -40,10 +42,9 @@ $('#start').on('click', function() {
     });
 
 
-    $('#start').hide();
-    $('#username').hide();
+};
 
-});
+
 
 //Firebase watcher + initial loader HINT: .on("value")
 database.child('players').child('1').on("value", function(snapshot) {
@@ -55,6 +56,8 @@ database.child('players').child('1').on("value", function(snapshot) {
     $('#player-1').html('<h2>' + snapshot.val().player1 + '</h2>')
         .append('<h4>Wins: ' + snapshot.val().wins1 + '</h4>')
         .append('<h4>Losses: ' + snapshot.val().losses1 + '</h4>');
+    $('#start').hide();
+    $('#username').hide();
 
     $('#join-game').show();
     $('#joiner').show();
@@ -73,9 +76,13 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 
 
     database.child('players').child('1').remove();
-    numPlayers = 0;
+
+    $('#start').show();
+    $('#username').show();
 
 });
+
+
 
 $('#join-game').on('click', function() {
 
@@ -101,16 +108,18 @@ $('#join-game').on('click', function() {
 });
 
 //Firebase watcher + initial loader HINT: .on("value")
-database.child('players').child('2').on("value", function(snapshot) {
+database.child('players').child('2').on("value", function(snapshot2) {
 
     //Log everything that's coming out of snapshot
-    console.log(snapshot.val());
+    console.log(snapshot2.val());
 
     // Change the HTML to reflect
-    $('#player-2').html('<h2>' + snapshot.val().player2 + '</h2>')
-        .append('<h4>Wins: ' + snapshot.val().wins2 + '</h4>')
-        .append('<h4>Losses: ' + snapshot.val().losses2 + '</h4>');
+    $('#player-2').html('<h2>' + snapshot2.val().player2 + '</h2>')
+        .append('<h4>Wins: ' + snapshot2.val().wins2 + '</h4>')
+        .append('<h4>Losses: ' + snapshot2.val().losses2 + '</h4>');
 
+    $('#join-game').hide();
+    $('#joiner').hide();
     // Handle the errors
 }, function(errorObject) {
 
@@ -125,6 +134,6 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 
 
     database.child('players').child('2').remove();
-    numPlayers = 0;
+
 
 });
