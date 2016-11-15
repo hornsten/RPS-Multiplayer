@@ -138,3 +138,19 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 
 
 });
+
+$('#chat').on('click', holla);
+
+function holla() {
+    var message = $('#message').val().trim();
+
+    database.child('chat').push({
+
+        message: message
+    });
+};
+
+database.child('chat').on('child_added', function(snap) {
+
+    $('#chat-log').append('<p>' + snap.val().message + '</p>');
+})
