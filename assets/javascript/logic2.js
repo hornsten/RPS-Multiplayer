@@ -9,8 +9,6 @@ var config = {
 firebase.initializeApp(config);
 
 var database = firebase.database().ref();
-var player1 = "";
-var player2 = "";
 var wins2 = 0;
 var losses2 = 0;
 var wins1 = 0;
@@ -48,8 +46,6 @@ function signIn() {
 //Firebase watcher + initial loader HINT: .on("value")
 database.child('players').child('1').on("value", function(snapshot) {
 
-    //Log everything that's coming out of snapshot
-    console.log(snapshot.val());
 
     // Change the HTML to reflect
     $('#player-1').html('<h2>' + snapshot.val().player1 + '</h2>')
@@ -64,7 +60,8 @@ database.child('players').child('1').on("value", function(snapshot) {
     // Handle the errors
 }, function(errorObject) {
 
-    console.log("Errors handled: " + errorObject.code);
+    // console.log("Errors handled: " + errorObject.code);
+
 
 });
 
@@ -106,13 +103,14 @@ function joinGame() {
     $('#joiner').hide();
     $('#status').html('<h4>Hi, ' + player2 + '! You are Player 2</h4>');
 
+
 };
 
 //Firebase watcher + initial loader HINT: .on("value")
 database.child('players').child('2').on("value", function(snapshot2) {
 
     //Log everything that's coming out of snapshot
-    console.log(snapshot2.val());
+
 
     // Change the HTML to reflect
     $('#player-2').html('<h2>' + snapshot2.val().player2 + '</h2>')
@@ -122,6 +120,7 @@ database.child('players').child('2').on("value", function(snapshot2) {
     $('#join-game').hide();
     $('#joiner').hide();
     // Handle the errors
+
 }, function(errorObject) {
 
     console.log("Errors handled: " + errorObject.code);
@@ -133,7 +132,6 @@ database.child('players').child('2').on("value", function(snapshot2) {
 
 firebase.auth().onAuthStateChanged(firebaseUser => {
 
-
     database.child('players').child('2').remove();
 
 
@@ -142,15 +140,19 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 $('#chat').on('click', holla);
 
 function holla() {
-    var message = $('#message').val().trim();
 
+    var message = $('#message').val().trim();
     database.child('chat').push({
 
         message: message
+
     });
+
 };
 
 database.child('chat').on('child_added', function(snap) {
 
     $('#chat-log').append('<p>' + snap.val().message + '</p>');
+    $('#message').val("");
+
 })
