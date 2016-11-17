@@ -21,7 +21,6 @@ $('#joiner').hide();
 
 $('#start').on('click', signIn);
 
-
 function signIn() {
 
     firebase.auth().signInAnonymously();
@@ -119,7 +118,9 @@ database.child('players').child('2').on("value", function(snapshot2) {
 
     $('#join-game').hide();
     $('#joiner').hide();
+
     turn1();
+
     // Handle the errors
 
 }, function(errorObject) {
@@ -160,8 +161,10 @@ database.child('chat').on('child_added', function(snap) {
 
 //RPS game
 
-var player1Choice = 'Rock, Paper, or Scissors?';
-var player2Choice = 'Rock, Paper, or Scissors?';
+
+
+var player1Choice;
+var player2Choice;
 
 function turn1() {
 
@@ -172,13 +175,20 @@ function turn1() {
 
     $('.choice').on('click', function() {
 
-        alert($(this).attr('data-choice'));
+        player1Choice = $(this).attr('data-choice');
         $('.choice').hide();
         $('#player-1').removeClass('turn');
 
+        database.child('turn1').set({
+
+            player1Choice: player1Choice
+        });
         turn2();
     });
+
+
 }
+
 
 function turn2() {
 
@@ -189,11 +199,20 @@ function turn2() {
 
     $('.choice').on('click', function() {
 
-        alert($(this).attr('data-choice'));
+        player2Choice = $(this).attr('data-choice');
         $('.choice').hide();
         $('#player-2').removeClass('turn');
+
+        database.child('turn2').set({
+
+            player2Choice: player2Choice
+
+        });
+
     });
 }
+
+
 
 function gamePlay(player1Choice, player2Choice) {
 
