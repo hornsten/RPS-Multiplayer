@@ -9,3 +9,7 @@
   border: 1px solid #ccc;
   margin: 20px 0 5px 0;
 }
+
+.turn {
+  border: 3px solid green;
+}

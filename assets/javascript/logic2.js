@@ -49,8 +49,8 @@ database.child('players').child('1').on("value", function(snapshot) {
 
     // Change the HTML to reflect
     $('#player-1').html('<h2>' + snapshot.val().player1 + '</h2>')
-        .append('<h4>Wins: ' + snapshot.val().wins1 + '</h4>')
-        .append('<h4>Losses: ' + snapshot.val().losses1 + '</h4>');
+        .append('<h5>Wins: ' + snapshot.val().wins1 + '</h5>')
+        .append('<h5>Losses: ' + snapshot.val().losses1 + '</h5>');
     $('#start').hide();
     $('#username').hide();
 
@@ -114,11 +114,12 @@ database.child('players').child('2').on("value", function(snapshot2) {
 
     // Change the HTML to reflect
     $('#player-2').html('<h2>' + snapshot2.val().player2 + '</h2>')
-        .append('<h4>Wins: ' + snapshot2.val().wins2 + '</h4>')
-        .append('<h4>Losses: ' + snapshot2.val().losses2 + '</h4>');
+        .append('<h5>Wins: ' + snapshot2.val().wins2 + '</h5>')
+        .append('<h5>Losses: ' + snapshot2.val().losses2 + '</h5>');
 
     $('#join-game').hide();
     $('#joiner').hide();
+    turn1();
     // Handle the errors
 
 }, function(errorObject) {
@@ -156,3 +157,62 @@ database.child('chat').on('child_added', function(snap) {
     $('#message').val("");
 
 })
+
+//RPS game
+
+var player1Choice = 'Rock, Paper, or Scissors?';
+var player2Choice = 'Rock, Paper, or Scissors?';
+
+function turn1() {
+
+    $('#player-1').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
+        .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
+        .append('<button class="choice btn btn-primary" data-choice="scissors">Scissors</button')
+        .addClass('turn');
+
+    $('.choice').on('click', function() {
+
+        alert($(this).attr('data-choice'));
+        $('.choice').hide();
+        $('#player-1').removeClass('turn');
+
+        turn2();
+    });
+}
+
+function turn2() {
+
+    $('#player-2').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
+        .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
+        .append('<button class="choice btn btn-primary" data-choice="scissors">Scissors</button')
+        .addClass('turn');
+
+    $('.choice').on('click', function() {
+
+        alert($(this).attr('data-choice'));
+        $('.choice').hide();
+        $('#player-2').removeClass('turn');
+    });
+}
+
+function gamePlay(player1Choice, player2Choice) {
+
+    if (player1Choice === player2Choice) {
+        return "The result is a tie!";
+    };
+
+    switch (player1Choice) {
+        case "Rock":
+            return (player1Choice === "Paper" ? "Rock" : "Scissors") + " wins!";
+            break;
+        case "Paper":
+            return (player1Choice === "Rock" ? "Paper" : "Scissors") + " wins!";
+            break;
+        case "Scissors":
+            return (player1Choice === "Paper" ? "Scissors" : "Rock") + " wins!";
+            break;
+    };
+
+};
+
+gamePlay(player1Choice, player2Choice);
