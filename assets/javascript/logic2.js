@@ -8,7 +8,9 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var database = firebase.database().ref();
+var database = firebase.database();
+var player1Db = database.ref().child('players').child('1');
+var player2Db = database.ref().child('players').child('2');
 var wins2 = 0;
 var losses2 = 0;
 var wins1 = 0;
@@ -29,7 +31,7 @@ function signIn() {
 
     player1 = $('#username').val().trim();
 
-    database.child('players').child('1').set({
+    player1Db.set({
 
         player1: player1,
         wins1: wins1,
@@ -43,9 +45,9 @@ function signIn() {
 };
 
 //Firebase watcher + initial loader HINT: .on("value")
-database.child('players').child('1').on("value", function(snapshot) {
+player1Db.on("value", function(snapshot) {
 
-
+    console.log(player1Db);
     // Change the HTML to reflect
     $('#player-1').html('<h2>' + snapshot.val().player1 + '</h2>')
         .append('<h5>Wins: ' + snapshot.val().wins1 + '</h5>')
@@ -88,7 +90,7 @@ function joinGame() {
 
     player2 = $('#joiner').val().trim();
 
-    database.child('players').child('2').set({
+    player2Db.set({
 
         player2: player2,
         wins2: wins2,
@@ -106,7 +108,7 @@ function joinGame() {
 };
 
 //Firebase watcher + initial loader HINT: .on("value")
-database.child('players').child('2').on("value", function(snapshot2) {
+player2Db.on("value", function(snapshot2) {
 
     //Log everything that's coming out of snapshot
 
