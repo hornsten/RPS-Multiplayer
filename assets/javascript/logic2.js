@@ -102,14 +102,12 @@ function joinGame() {
     $('#joiner').hide();
     $('#status').html('<h4>Hi, ' + player2 + '! You are Player 2</h4>');
 
-
 };
 
 //Firebase watcher + initial loader HINT: .on("value")
 player2Db.on("value", function(snapshot2) {
 
     //Log everything that's coming out of snapshot
-
 
     // Change the HTML to reflect
     $('#player-2').html('<h2>' + snapshot2.val().player2 + '</h2>')
@@ -119,8 +117,8 @@ player2Db.on("value", function(snapshot2) {
     $('#join-game').hide();
     $('#joiner').hide();
 
+    $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
     turn1();
-
     // Handle the errors
 
 }, function(errorObject) {
@@ -144,7 +142,7 @@ $('#chat').on('click', holla);
 function holla() {
 
     var message = $('#message').val().trim();
-    database.child('chat').push({
+    database.ref().child('chat').push({
 
         message: message
 
@@ -152,7 +150,7 @@ function holla() {
 
 };
 
-database.child('chat').on('child_added', function(snap) {
+database.ref().child('chat').on('child_added', function(snap) {
 
     $('#chat-log').append('<p>' + snap.val().message + '</p>');
     $('#message').val("");
