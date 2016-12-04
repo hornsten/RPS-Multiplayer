@@ -47,7 +47,6 @@ function signIn() {
 //Firebase watcher + initial loader HINT: .on("value")
 player1Db.on("value", function(snapshot) {
 
-    console.log(player1Db);
     // Change the HTML to reflect
     $('#player-1').html('<h2>' + snapshot.val().player1 + '</h2>')
         .append('<h5>Wins: ' + snapshot.val().wins1 + '</h5>')
@@ -72,13 +71,12 @@ player1Db.on("value", function(snapshot) {
 firebase.auth().onAuthStateChanged(firebaseUser => {
 
 
-    database.child('players').child('1').remove();
-
-    $('#start').show();
-    $('#username').show();
+    // player1Db.remove();
+    ("Player 1 has left the game");
+    // $('#start').show();
+    // $('#username').show();
 
 });
-
 
 
 $('#join-game').on('click', joinGame);
@@ -136,8 +134,8 @@ player2Db.on("value", function(snapshot2) {
 
 firebase.auth().onAuthStateChanged(firebaseUser => {
 
-    database.child('players').child('2').remove();
-
+    // player2Db.remove();
+    console.log("Player 2 has left the game");
 
 });
 
@@ -163,13 +161,11 @@ database.child('chat').on('child_added', function(snap) {
 
 //RPS game
 
-
-
 var player1Choice;
 var player2Choice;
 
 function turn1() {
-
+    $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
     $('#player-1').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
         .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
         .append('<button class="choice btn btn-primary" data-choice="scissors">Scissors</button')
@@ -181,7 +177,7 @@ function turn1() {
         $('.choice').hide();
         $('#player-1').removeClass('turn');
 
-        database.child('turn1').set({
+        player1Db.child('choice').push({
 
             player1Choice: player1Choice
         });
@@ -205,7 +201,7 @@ function turn2() {
         $('.choice').hide();
         $('#player-2').removeClass('turn');
 
-        database.child('turn2').set({
+        player2Db.child('choice').push({
 
             player2Choice: player2Choice
 
