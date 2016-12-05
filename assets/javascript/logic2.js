@@ -10,8 +10,8 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 var playersDb = database.ref().child('players');
-var player1Db = database.ref().child('players').child('1');
-var player2Db = database.ref().child('players').child('2');
+var player1Db = database.ref().child('players').child('player1');
+var player2Db = database.ref().child('players').child('player2');
 var wins2 = 0;
 var losses2 = 0;
 var wins1 = 0;
