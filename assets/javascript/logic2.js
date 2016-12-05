@@ -72,7 +72,7 @@ player1Db.on("value", function(snapshot) {
 firebase.auth().onAuthStateChanged(firebaseUser => {
 
 
-    // player1Db.remove();
+    player1Db.remove();
     ("Player 1 has left the game");
     // $('#start').show();
     // $('#username').show();
@@ -135,7 +135,7 @@ player2Db.on("value", function(snapshot2) {
 
 firebase.auth().onAuthStateChanged(firebaseUser => {
 
-    // player2Db.remove();
+    player2Db.remove();
     console.log("Player 2 has left the game");
 
 });
