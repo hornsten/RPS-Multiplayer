@@ -26,6 +26,17 @@ $('#joiner').hide();
 
 $('#start').on('click', signIn);
 
+var gameResults = "";
+
+playersDb.set({
+    gameResults: gameResults
+})
+
+playersDb.on('value', function(snapshot) {
+
+    $('#game-results').html('<h2>' + snapshot.val().gameResults);
+})
+
 function signIn() {
 
     firebase.auth().signInAnonymously();
@@ -112,6 +123,7 @@ function joinGame() {
 
 };
 
+
 //Firebase watcher + initial loader HINT: .on("value")
 player2Db.on("value", function(snapshot2) {
 
@@ -129,7 +141,6 @@ player2Db.on("value", function(snapshot2) {
     player2Choice = snapshot2.val().choice;
     console.log(player2Choice);
 
-
     turn1();
 
     // Handle the errors
@@ -139,6 +150,7 @@ player2Db.on("value", function(snapshot2) {
     console.log("Errors handled: " + errorObject.code);
 
 });
+
 
 
 //Auth Listener
@@ -174,6 +186,7 @@ database.ref().child('chat').on('child_added', function(snap) {
 //RPS game
 
 function turn1() {
+
     $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
     $('#player-1').append('<button class="choice btn btn-primary" data-choice="rock">rock</button>')
         .append('<button class="choice btn btn-primary" data-choice="paper">paper</button>')
@@ -220,24 +233,43 @@ function gamePlay() {
     console.log('gameplay choices: ' + player1Choice, player2Choice);
 
     if (player1Choice === player2Choice) {
-        $('#game-results').html('<h4 id="results">The result is a tie!</h4>');
+        gameResults = 'The result is a tie!';
+        playersDb.update({ gameResults: gameResults });
+        turn1();
+
     } else if (player1Choice === "paper") {
         if (player2Choice === "scissors") {
-            $('#game-results').html('<h4 id="results">scissors wins!</h4>');
+            $('#game-results').html('<h4 id="results">Scissors wins!</h4>');
+            playersDb.update({ gameResults: gameResults });
+            player2Db.wins2 += player2Db.wins2;
+            player2Db.update({ wins2: wins2 });
+            turn1();
+
         } else if (player2Choice === "rock") {
-            $('#game-results').html('<h4 id="results">paper wins!</h4>');
+            gameResults = 'Paper wins!';
+            playersDb.update({ gameResults: gameResults });
+            turn1();
         }
     } else if (player1Choice === "rock") {
         if (player2Choice === "paper") {
-            $('#game-results').html('<h4 id="results">paper wins!</h4>');
+            gameResults = 'Paper wins!';
+            playersDb.update({ gameResults: gameResults });
+            turn1();
+
         } else if (player2Choice === "scissors") {
-            $('#game-results').html('<h4 id="results">rock wins!</h4>');
+            gameResults = 'Rock wins!</h4>';
+            playersDb.update({ gameResults: gameResults });
+            turn1();
         }
     } else if (player1Choice === "scissors") {
         if (player2Choice === "paper") {
-            $('#game-results').html('<h4 id="results">scissors wins!</h4>');
+            gameResults = "Scissors wins!";
+            playersDb.update({ gameResults: gameResults });
+            turn1();
         } else if (player2Choice === "rock") {
-            $('#game-results').html('<h4 id="results">rock wins!</h4>');
+            gameResults = 'Rock wins!</h4>';
+            playersDb.update({ gameResults: gameResults });
+            turn1();
         }
 
     }
