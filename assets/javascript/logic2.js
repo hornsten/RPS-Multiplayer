@@ -9,6 +9,7 @@ var config = {
 firebase.initializeApp(config);
 
 var database = firebase.database();
+var playersDb = database.ref().child('players');
 var player1Db = database.ref().child('players').child('1');
 var player2Db = database.ref().child('players').child('2');
 var wins2 = 0;
@@ -118,7 +119,9 @@ player2Db.on("value", function(snapshot2) {
     $('#joiner').hide();
 
     $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
+
     turn1();
+
     // Handle the errors
 
 }, function(errorObject) {
@@ -136,6 +139,7 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
     console.log("Player 2 has left the game");
 
 });
+
 
 $('#chat').on('click', holla);
 
@@ -175,19 +179,19 @@ function turn1() {
         $('.choice').hide();
         $('#player-1').removeClass('turn');
 
-        player1Db.child('choice').push({
+        player1Db.child('choice').set({
 
             player1Choice: player1Choice
         });
-        turn2();
-    });
 
+        turn2();
+
+    });
 
 }
 
-
 function turn2() {
-
+    $('#status').html('<h4>It is player 2\'s turn</h4>');
     $('#player-2').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
         .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
         .append('<button class="choice btn btn-primary" data-choice="scissors">Scissors</button')
@@ -199,35 +203,40 @@ function turn2() {
         $('.choice').hide();
         $('#player-2').removeClass('turn');
 
-        player2Db.child('choice').push({
+        player2Db.child('choice').set({
 
             player2Choice: player2Choice
 
         });
-
+        gamePlay();
     });
 }
 
 
 
-function gamePlay(player1Choice, player2Choice) {
-
+function gamePlay() {
+    console.log(player1Choice);
+    console.log(player2Choice);
     if (player1Choice === player2Choice) {
-        return "The result is a tie!";
-    };
+        $('#game-results').html('<h4 id="results">The result is a tie!</h4>');
+    } else if (player1Choice === "paper") {
+        if (player2Choice === "scissors") {
+            $('#game-results').html('<h4 id="results">Scissors wins!</h4>');
+        } else if (player2Choice === "rock") {
+            $('#game-results').html('<h4 id="results">Paper wins!</h4>');
+        }
+    } else if (player1Choice === "rock") {
+        if (player2Choice === "paper") {
+            $('#game-results').html('<h4 id="results">Paper wins!</h4>');
+        } else if (player2Choice === "scissors") {
+            $('#game-results').html('<h4 id="results">Rock wins!</h4>');
+        }
+    } else if (player1Choice === "scissors") {
+        if (player2Choice === "paper") {
+            $('#game-results').html('<h4 id="results">Scissors wins!</h4>');
+        } else if (player2Choice === "rock") {
+            $('#game-results').html('<h4 id="results">Rock wins!</h4>');
+        }
 
-    switch (player1Choice) {
-        case "Rock":
-            return (player1Choice === "Paper" ? "Rock" : "Scissors") + " wins!";
-            break;
-        case "Paper":
-            return (player1Choice === "Rock" ? "Paper" : "Scissors") + " wins!";
-            break;
-        case "Scissors":
-            return (player1Choice === "Paper" ? "Scissors" : "Rock") + " wins!";
-            break;
-    };
-
+    }
 };
-
-gamePlay(player1Choice, player2Choice);
