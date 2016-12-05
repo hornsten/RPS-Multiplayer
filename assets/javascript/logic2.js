@@ -18,6 +18,7 @@ var wins1 = 0;
 var losses1 = 0;
 var gameStarted = false;
 var gameClosed = false;
+var gameOver = false;
 var player1Choice = "";
 var player2Choice = "";
 
@@ -163,25 +164,6 @@ firebase.auth().onAuthStateChanged(firebaseUser => {
 });
 
 
-$('#chat').on('click', holla);
-
-function holla() {
-
-    var message = $('#message').val().trim();
-    database.ref().child('chat').push({
-
-        message: message
-
-    });
-
-};
-
-database.ref().child('chat').on('child_added', function(snap) {
-
-    $('#chat-log').append('<p>' + snap.val().message + '</p>');
-    $('#message').val("");
-
-})
 
 //RPS game
 
@@ -202,11 +184,11 @@ function turn1() {
         player1Db.update({ choice: player1Choice });
     });
 
-}
+};
 
 function turn2() {
 
-    $('#status').html('<h4>It is player 2\'s turn</h4>');
+    $('#status').html('<h4>It is ' + player2 + '\'s turn</h4>');
     $('#player-2').append('<button class="choice btn btn-primary" data-choice="rock">rock</button>')
         .append('<button class="choice btn btn-primary" data-choice="paper">paper</button>')
         .append('<button class="choice btn btn-primary" data-choice="scissors">scissors</button')
@@ -222,55 +204,92 @@ function turn2() {
         gamePlay();
     });
 
-
 }
 
 
 function gamePlay() {
-    alert('game on');
-    // player1Choice = player1Db.child('choice').player1Choice;
-    // player2Choice = player2Db.child('choice').player2Choice;
-    console.log('gameplay choices: ' + player1Choice, player2Choice);
 
     if (player1Choice === player2Choice) {
         gameResults = 'The result is a tie!';
         playersDb.update({ gameResults: gameResults });
-        turn1();
+
 
     } else if (player1Choice === "paper") {
         if (player2Choice === "scissors") {
             $('#game-results').html('<h4 id="results">Scissors wins!</h4>');
             playersDb.update({ gameResults: gameResults });
-            player2Db.wins2 += player2Db.wins2;
+            wins2 = wins2 + 1;
+            losses1 = losses1 + 1;
             player2Db.update({ wins2: wins2 });
-            turn1();
+            player1Db.update({ losses1: losses1 });
+
 
         } else if (player2Choice === "rock") {
             gameResults = 'Paper wins!';
             playersDb.update({ gameResults: gameResults });
-            turn1();
+            wins1 = wins1 + 1;
+            losses2 = losses2 + 1;
+            player1Db.update({ wins1: wins1 });
+            player2Db.update({ losses2: losses2 });
         }
     } else if (player1Choice === "rock") {
         if (player2Choice === "paper") {
             gameResults = 'Paper wins!';
             playersDb.update({ gameResults: gameResults });
-            turn1();
+            wins2 = wins2 + 1;
+            losses1 = losses1 + 1;
+            player2Db.update({ wins2: wins2 });
+            player1Db.update({ losses1: losses1 });
+
 
         } else if (player2Choice === "scissors") {
             gameResults = 'Rock wins!</h4>';
             playersDb.update({ gameResults: gameResults });
-            turn1();
+            wins1 = wins1 + 1;
+            losses2 = losses2 + 1;
+            player1Db.update({ wins1: wins1 });
+            player2Db.update({ losses2: losses2 });
         }
     } else if (player1Choice === "scissors") {
         if (player2Choice === "paper") {
             gameResults = "Scissors wins!";
             playersDb.update({ gameResults: gameResults });
-            turn1();
+            wins1 = wins1 + 1;
+            losses2 = losses2 + 1;
+            player1Db.update({ wins1: wins1 });
+            player2Db.update({ losses2: losses2 });
+
         } else if (player2Choice === "rock") {
             gameResults = 'Rock wins!</h4>';
             playersDb.update({ gameResults: gameResults });
-            turn1();
+            wins2 = wins2 + 1;
+            losses1 = losses1 + 1;
+            player2Db.update({ wins2: wins2 });
+            player1Db.update({ losses1: losses1 });
+
         }
 
     }
+
 };
+
+
+$('#chat').on('click', holla);
+
+function holla() {
+
+    var message = $('#message').val().trim();
+    database.ref().child('chat').push({
+
+        message: message
+
+    });
+
+};
+
+database.ref().child('chat').on('child_added', function(snap) {
+
+    $('#chat-log').append('<p>' + snap.val().message + '</p>');
+    $('#message').val("");
+
+})
