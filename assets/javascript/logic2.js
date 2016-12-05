@@ -18,6 +18,8 @@ var wins1 = 0;
 var losses1 = 0;
 var gameStarted = false;
 var gameClosed = false;
+var player1Choice = "";
+var player2Choice = "";
 
 $('#join-game').hide();
 $('#joiner').hide();
@@ -58,7 +60,9 @@ player1Db.on("value", function(snapshot) {
 
     $('#join-game').show();
     $('#joiner').show();
-
+    console.log(snapshot.val());
+    player1Choice = snapshot.val().choice;
+    console.log(player1Choice);
     // Handle the errors
 }, function(errorObject) {
 
@@ -122,6 +126,9 @@ player2Db.on("value", function(snapshot2) {
     $('#joiner').hide();
 
     $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
+    player2Choice = snapshot2.val().choice;
+    console.log(player2Choice);
+
 
     turn1();
 
@@ -168,9 +175,9 @@ database.ref().child('chat').on('child_added', function(snap) {
 
 function turn1() {
     $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
-    $('#player-1').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
-        .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
-        .append('<button class="choice btn btn-primary" data-choice="scissors">Scissors</button')
+    $('#player-1').append('<button class="choice btn btn-primary" data-choice="rock">rock</button>')
+        .append('<button class="choice btn btn-primary" data-choice="paper">paper</button>')
+        .append('<button class="choice btn btn-primary" data-choice="scissors">scissors</button')
         .addClass('turn');
 
     $('.choice').on('click', function() {
@@ -178,12 +185,8 @@ function turn1() {
         player1Choice = $(this).attr('data-choice');
         $('.choice').hide();
         $('#player-1').removeClass('turn');
-
-        player1Db.child('choice').set({
-
-            player1Choice: player1Choice
-        });
-
+        choice = player1Choice;
+        player1Db.update({ choice: player1Choice });
     });
 
 }
@@ -191,9 +194,9 @@ function turn1() {
 function turn2() {
 
     $('#status').html('<h4>It is player 2\'s turn</h4>');
-    $('#player-2').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
-        .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
-        .append('<button class="choice btn btn-primary" data-choice="scissors">Scissors</button')
+    $('#player-2').append('<button class="choice btn btn-primary" data-choice="rock">rock</button>')
+        .append('<button class="choice btn btn-primary" data-choice="paper">paper</button>')
+        .append('<button class="choice btn btn-primary" data-choice="scissors">scissors</button')
         .addClass('turn');
 
     $('.choice').on('click', function() {
@@ -201,42 +204,40 @@ function turn2() {
         player2Choice = $(this).attr('data-choice');
         $('.choice').hide();
         $('#player-2').removeClass('turn');
-
-        player2Db.child('choice').set({
-
-            player2Choice: player2Choice
-
-        });
+        // choice=player2Choice;
+        player2Db.update({ choice: player2Choice });
         gamePlay();
     });
+
+
 }
 
 
-
 function gamePlay() {
+    alert('game on');
+    // player1Choice = player1Db.child('choice').player1Choice;
+    // player2Choice = player2Db.child('choice').player2Choice;
+    console.log('gameplay choices: ' + player1Choice, player2Choice);
 
-    player1Choice = player1Db.child('choice');
-    player2Choice = player2Db.child('choice');
-    console.log(player1Choice, player2Choice);
     if (player1Choice === player2Choice) {
         $('#game-results').html('<h4 id="results">The result is a tie!</h4>');
     } else if (player1Choice === "paper") {
         if (player2Choice === "scissors") {
-            $('#game-results').html('<h4 id="results">Scissors wins!</h4>');
+            $('#game-results').html('<h4 id="results">scissors wins!</h4>');
         } else if (player2Choice === "rock") {
-            $('#game-results').html('<h4 id="results">Paper wins!</h4>');
+            $('#game-results').html('<h4 id="results">paper wins!</h4>');
         }
     } else if (player1Choice === "rock") {
         if (player2Choice === "paper") {
-            $('#game-results').html('<h4 id="results">Paper wins!</h4>');
+            $('#game-results').html('<h4 id="results">paper wins!</h4>');
         } else if (player2Choice === "scissors") {
-            $('#game-results').html('<h4 id="results">Rock wins!</h4>');
+            $('#game-results').html('<h4 id="results">rock wins!</h4>');
         }
     } else if (player1Choice === "scissors") {
         if (player2Choice === "paper") {
-            $('#game-results').html('<h4 id="results">Scissors wins!</h4>');
+            $('#game-results').html('<h4 id="results">scissors wins!</h4>');
         } else if (player2Choice === "rock") {
-            $('#game-results').html('<h4 id="results">Rock wins!</h4>');
+            $('#game-results').html('<h4 id="results">rock wins!</h4>');
         }
 
     }
