@@ -38,7 +38,8 @@ function signIn() {
         wins1: wins1,
         losses1: losses1,
         uid: uid,
-        gameStarted: true
+        gameStarted: true,
+        choice: null
     });
 
     $('#status').html('<h4>Hi, ' + player1 + '! You are Player 1</h4>');
@@ -95,13 +96,15 @@ function joinGame() {
         wins2: wins2,
         losses2: losses2,
         uid2: uid2,
-        gameClosed: true
+        gameClosed: true,
+        choice: null
     });
 
 
     $('#join-game').hide();
     $('#joiner').hide();
     $('#status').html('<h4>Hi, ' + player2 + '! You are Player 2</h4>');
+    turn2();
 
 };
 
@@ -163,9 +166,6 @@ database.ref().child('chat').on('child_added', function(snap) {
 
 //RPS game
 
-var player1Choice;
-var player2Choice;
-
 function turn1() {
     $('#status').html('<h4>It is ' + player1 + '\'s turn</h4>');
     $('#player-1').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
@@ -184,13 +184,12 @@ function turn1() {
             player1Choice: player1Choice
         });
 
-        turn2();
-
     });
 
 }
 
 function turn2() {
+
     $('#status').html('<h4>It is player 2\'s turn</h4>');
     $('#player-2').append('<button class="choice btn btn-primary" data-choice="rock">Rock</button>')
         .append('<button class="choice btn btn-primary" data-choice="paper">Paper</button>')
@@ -215,8 +214,10 @@ function turn2() {
 
 
 function gamePlay() {
-    console.log(player1Choice);
-    console.log(player2Choice);
+
+    player1Choice = player1Db.child('choice');
+    player2Choice = player2Db.child('choice');
+    console.log(player1Choice, player2Choice);
     if (player1Choice === player2Choice) {
         $('#game-results').html('<h4 id="results">The result is a tie!</h4>');
     } else if (player1Choice === "paper") {
