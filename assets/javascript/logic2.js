@@ -14,6 +14,7 @@ var chatRef = database.ref().child('chat');
 var messageField = $('#message');
 var chatLog = $('#chat-log');
 var nameField = $('#username');
+var player2Field = $('#joiner');
 
 //Chat feature
 $('#chat').on('click', function() {
@@ -21,6 +22,7 @@ $('#chat').on('click', function() {
     var message = {
 
         name: nameField.val(),
+        player2name: player2Field.val(),
         message: messageField.val()
     };
 
@@ -32,7 +34,7 @@ $('#chat').on('click', function() {
 chatRef.limitToLast(5).on('child_added', function(snapshot) {
 
     var data = snapshot.val();
-    var name = data.name || 'nameless rando';
+    var name = data.name || data.player2name || 'nameless rando';
     var message = data.message;
 
     var messageElement = $('<li>');
