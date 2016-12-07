@@ -13,3 +13,7 @@
 .turn {
   border: 3px solid green;
 }
+
+li {
+  list-style-type: none;
+}

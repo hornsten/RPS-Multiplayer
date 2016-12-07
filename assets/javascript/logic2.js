@@ -6,9 +6,45 @@ var config = {
     storageBucket: "rps-multiplayer-bfae3.appspot.com",
     messagingSenderId: "401412695592"
 };
+
 firebase.initializeApp(config);
 
 var database = firebase.database();
+var chatRef = database.ref().child('chat');
+var messageField = $('#message');
+var chatLog = $('#chat-log');
+var nameField = $('#username');
+
+//Chat feature
+$('#chat').on('click', function() {
+
+    var message = {
+
+        name: nameField.val(),
+        message: messageField.val()
+    };
+
+    chatRef.push(message);
+    messageField.val('');
+
+});
+
+chatRef.limitToLast(5).on('child_added', function(snapshot) {
+
+    var data = snapshot.val();
+    var name = data.name || 'nameless rando';
+    var message = data.message;
+
+    var messageElement = $('<li>');
+    var nameElement = $('<span></span>');
+    nameElement.html(name + ": ");
+    messageElement.html(message).prepend(nameElement);
+
+    chatLog.append(messageElement);;
+});
+
+//End of chat feature 
+
 var playersDb = database.ref().child('players');
 var player1Db = database.ref().child('players').child('player1');
 var player2Db = database.ref().child('players').child('player2');
@@ -269,27 +305,7 @@ function gamePlay() {
 
         }
 
+
     }
 
 };
-
-
-$('#chat').on('click', holla);
-
-function holla() {
-
-    var message = $('#message').val().trim();
-    database.ref().child('chat').push({
-
-        message: message
-
-    });
-
-};
-
-database.ref().child('chat').on('child_added', function(snap) {
-
-    $('#chat-log').append('<p>' + snap.val().message + '</p>');
-    $('#message').val("");
-
-})
