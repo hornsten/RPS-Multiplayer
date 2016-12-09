@@ -38,6 +38,7 @@ $(document).ready(function() {
     });
 
     $('#start').on('click', addPlayers);
+
     //Chat feature
     var chatRef = database.ref().child('chat');
     var messageField = $('#message');
@@ -153,22 +154,62 @@ $(document).ready(function() {
 
             if (turn === currentPlayer) {
 
-                $('#player-' + currentPlayer).addClass('turn');
-                $('#player-' + otherPlayer).removeClass('turn');
+                $('#box-' + currentPlayer).addClass('turn');
+                $('#box-' + otherPlayer).removeClass('turn');
                 $('.choice-' + currentPlayer).show();
-                $('#status').html('It is Player ' + currentPlayer + '\'s turn');
-                $('#player-' + currentPlayer).append('<button class="choice-' + currentPlayer + ' btn btn-primary" data-choice="rock">rock</button>')
-                    .append('<button class="choice-' + currentPlayer + ' btn btn-primary" data-choice="paper">paper</button>')
-                    .append('<button class="choice-' + currentPlayer + ' btn btn-primary" data-choice="scissors">scissors</button')
+                $('#status').html('It is ' + player.name + '\'s turn');
+
             } else {
-                $('#player-' + currentPlayer).removeClass('turn');
-                $('#player-' + otherPlayer).addClass('turn');
-                $('.choice-' + currentPlayer).remove();
-                $('#status').html('It is Player ' + otherPlayer + '\'s turn');
+                $('#box-' + currentPlayer).removeClass('turn');
+                $('#box-' + otherPlayer).addClass('turn');
+                $('.choice-' + currentPlayer).hide();
+
+                var otherName = database.ref('players/' + otherPlayer + '/name');
+                otherName.once('value', function(snapshot) {
+                    otherName = snapshot.val();
+                    //Indicate that it is the opponent's turn
+                    $('#status').html('It is ' + otherName + '\'s turn');
+                });
+
             }
         })
     };
 
+    function resetChoice() {
+
+        var choice = "";
+        var dbChoice = database.ref('players/' + currentPlayer + '/choice');
+        dbChoice.set(choice);
+
+    }
+
+
+
+    function makeChoices() {
+
+        var choice = $(this).attr('data-choice');
+        console.log(choice);
+        var dbChoice = database.ref('players/' + currentPlayer + '/choice');
+        dbChoice.set(choice);
+
+        database.ref('players/' + otherPlayer + '/choice').on('value', function(snapshot) {
+            // compareChoices();
+        });
+
+        var dbturn = database.ref('turn');
+        dbturn.once('value', function(snapshot) {
+            var currentTurn = snapshot.val();
+
+            if (currentTurn === 1) {
+                database.ref('turn').set(2);
+            } else {
+                database.ref('turn').set(1);
+            }
+        });
+    }
+
+    $('.choice-1').on('click', makeChoices);
+    $('.choice-2').on('click', makeChoices);
     //Chat feature
     $('#chat').on('click', function() {
 
