@@ -32,7 +32,7 @@ $(document).ready(function() {
     playerCount.on("value", function(snapshot) {
         numPlayers = snapshot.val();
         if (numPlayers === 2) {
-            // startGame();
+            startGame();
         }
     });
 
@@ -53,9 +53,11 @@ $(document).ready(function() {
 
             if (!snapshot.child('players/1').exists()) {
                 database.ref('players/1/').update(player);
-                $('#player-1').html('<h2>' + playerName + '</h2>')
-                    .append('<h5>Wins: ' + player.wins + '</h5>')
-                    .append('<h5>Losses: ' + player.losses + '</h5>');
+                var currentPlayerBox = $('#player-1');
+                var otherPlayerBox = $('#player-2');
+                currentPlayerBox.html('<h2>' + playerName)
+                    .append('<h5>Wins: ' + player.wins)
+                    .append('<h5>Losses: ' + player.losses);
                 currentPlayer = 1;
                 otherPlayer = 2;
                 nameField.hide();
@@ -76,11 +78,14 @@ $(document).ready(function() {
             } else if (!snapshot.child('players/2').exists()) {
 
                 database.ref('players/2/').update(player);
-                $('#player-2').html('<h2>' + playerName)
+                var currentPlayerBox = $('#player-2');
+                var otherPlayerBox = $('#player-1');
+                currentPlayerBox.html('<h2>' + playerName)
                     .append('<h5>Wins: ' + player.wins)
                     .append('<h5>Losses: ' + player.losses);
                 currentPlayer = 2;
                 otherPlayer = 1;
+
                 nameField.hide();
                 addPlayerButton.hide();
                 $('#status').html('<h4>Hi, ' + player.name + '! You are Player ' + currentPlayer);
@@ -104,6 +109,36 @@ $(document).ready(function() {
                 return;
             }
 
+            var amConnected = database.ref(".info/connected");
+            var userRef = database.ref('presence/' + currentPlayer);
+            amConnected.on('value', function(snapshot) {
+                if (snapshot.val()) {
+                    userRef.onDisconnect().remove();
+                    userRef.set(true);
+                }
+            });
+
+        });
+    }
+
+    function startGame() {
+
+        var otherGuy = database.ref('players/' + otherPlayer + '/');
+
+        otherGuy.on('value', function(snapshot) {
+            var data = snapshot.val();
+            var otherGuyName = data.name;
+            var otherGuyWins = data.wins;
+            var otherGuyLosses = data.losses;
+            if (currentPlayer === 1) {
+                $('#player-2').html('<h2>' + otherGuyName)
+                    .append('<h5>Wins: ' + otherGuyWins)
+                    .append('<h5>Losses: ' + otherGuyLosses);
+            } else {
+                $('#player-1').html('<h2>' + otherGuyName)
+                    .append('<h5>Wins: ' + otherGuyWins)
+                    .append('<h5>Losses: ' + otherGuyLosses);
+            }
         });
     }
 
@@ -113,7 +148,6 @@ $(document).ready(function() {
         var message = {
 
             name: nameField.val(),
-            // player2name: player2Field.val(),
             message: messageField.val()
         };
 
@@ -125,7 +159,7 @@ $(document).ready(function() {
     chatRef.limitToLast(5).on('child_added', function(snapshot) {
 
         var data = snapshot.val();
-        var name = data.name || data.player2name || 'nameless rando';
+        var name = data.name || 'nameless rando';
         var message = data.message;
 
         var messageElement = $('<li>');
