@@ -11,12 +11,10 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 var chatRef = database.ref().child('chat');
-var gameRef = database.ref().child('game');
 var messageField = $('#message');
 var chatLog = $('#chat-log');
 var nameField = $('#username');
 var player2Field = $('#joiner');
-var gameState = "";
 
 //Chat feature
 $('#chat').on('click', function() {
@@ -44,18 +42,8 @@ chatRef.limitToLast(5).on('child_added', function(snapshot) {
     nameElement.html(name + ": ");
     messageElement.html(message).prepend(nameElement);
 
-    chatLog.append(messageElement);
-
+    chatLog.append(messageElement);;
 });
-
-gameRef.set({
-    gameState: gameState
-})
-
-gameRef.on('value', function(snapshot) {
-    gameState = snapshot.val().gameState;
-    console.log(gameState);
-})
 
 //End of chat feature 
 
@@ -66,7 +54,9 @@ var wins2 = 0;
 var losses2 = 0;
 var wins1 = 0;
 var losses1 = 0;
-var gameState = "";
+var gameStarted = false;
+var gameClosed = false;
+var gameOver = false;
 var player1Choice = "";
 var player2Choice = "";
 
@@ -75,17 +65,15 @@ $('#joiner').hide();
 
 $('#start').on('click', signIn);
 
-var gameResults = '';
+var gameResults = "";
 
 playersDb.set({
     gameResults: gameResults
-
 })
 
 playersDb.on('value', function(snapshot) {
 
     $('#game-results').html('<h2>' + snapshot.val().gameResults);
-    $('#chat-log').append(snapshot.val().gameState);
 })
 
 function signIn() {
@@ -101,14 +89,14 @@ function signIn() {
         player1: player1,
         wins1: wins1,
         losses1: losses1,
-        uid: uid
-
+        uid: uid,
+        gameStarted: true,
+        choice: null
     });
 
     $('#status').html('<h4>Hi, ' + player1 + '! You are Player 1</h4>');
 
 };
-
 
 //Firebase watcher + initial loader HINT: .on("value")
 player1Db.on("value", function(snapshot) {
@@ -162,15 +150,15 @@ function joinGame() {
         wins2: wins2,
         losses2: losses2,
         uid2: uid2,
-
-
+        gameClosed: true,
+        choice: null
     });
 
 
     $('#join-game').hide();
     $('#joiner').hide();
     $('#status').html('<h4>Hi, ' + player2 + '! You are Player 2</h4>');
-
+    turn2();
 
 };
 
@@ -192,22 +180,14 @@ player2Db.on("value", function(snapshot2) {
     player2Choice = snapshot2.val().choice;
     console.log(player2Choice);
 
+    turn1();
+
     // Handle the errors
 
 }, function(errorObject) {
 
     console.log("Errors handled: " + errorObject.code);
 
-});
-
-player2Db.on("value", function(snapshot) {
-    turn1();
-
-})
-
-gameRef.on("value", function(snapshot) {
-
-    turn2();
 });
 
 
@@ -240,8 +220,7 @@ function turn1() {
         $('#player-1').removeClass('turn');
         choice = player1Choice;
         player1Db.update({ choice: player1Choice });
-        gameState = "turn 2";
-        gameRef.update({ gameState: gameState });
+        $('#player-1').append(player1Choice);
     });
 
 };
@@ -259,8 +238,8 @@ function turn2() {
         player2Choice = $(this).attr('data-choice');
         $('.choice').hide();
         $('#player-2').removeClass('turn');
-        // choice=player2Choice;
         player2Db.update({ choice: player2Choice });
+        $('#player-2').append(player2Choice);
         gamePlay();
     });
 
