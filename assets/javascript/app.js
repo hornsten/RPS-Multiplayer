@@ -24,9 +24,10 @@ var currentPlayer = null;
 var otherPlayer = null;
 var numPlayers = null;
 var otherName = "";
-var numChoices = 0;
+var choicesSelected = 0;
 
 $(document).ready(function() {
+
 
     //Check player count value in db. Trigger startGame function once value equal to 2
     playerCount.on("value", function(snapshot) {
@@ -122,7 +123,8 @@ $(document).ready(function() {
     }
 
     function startGame() {
-
+        $('.choice-1').hide();
+        $('.choice-2').hide();
         var otherGuy = database.ref('players/' + otherPlayer + '/');
 
         otherGuy.on('value', function(snapshot) {
@@ -140,7 +142,32 @@ $(document).ready(function() {
                     .append('<h5>Losses: ' + otherGuyLosses);
             }
         });
-    }
+
+        database.ref('choice_selections').set(choicesSelected);
+        database.ref('turn').set(1);
+
+
+        database.ref('turn').on('value', function(snapshot) {
+
+            var turn = snapshot.val();
+
+            if (turn === currentPlayer) {
+
+                $('#player-' + currentPlayer).addClass('turn');
+                $('#player-' + otherPlayer).removeClass('turn');
+                $('.choice-' + currentPlayer).show();
+                $('#status').html('It is Player ' + currentPlayer + '\'s turn');
+                $('#player-' + currentPlayer).append('<button class="choice-' + currentPlayer + ' btn btn-primary" data-choice="rock">rock</button>')
+                    .append('<button class="choice-' + currentPlayer + ' btn btn-primary" data-choice="paper">paper</button>')
+                    .append('<button class="choice-' + currentPlayer + ' btn btn-primary" data-choice="scissors">scissors</button')
+            } else {
+                $('#player-' + currentPlayer).removeClass('turn');
+                $('#player-' + otherPlayer).addClass('turn');
+                $('.choice-' + currentPlayer).remove();
+                $('#status').html('It is Player ' + otherPlayer + '\'s turn');
+            }
+        })
+    };
 
     //Chat feature
     $('#chat').on('click', function() {
