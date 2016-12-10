@@ -11,6 +11,7 @@ firebase.initializeApp(config);
 
 var database = firebase.database();
 var playerCount = database.ref('playerCount');
+var gameResultsRef = database.ref('gameResults');
 
 var player = {
 
@@ -25,9 +26,19 @@ var otherPlayer = null;
 var numPlayers = null;
 var otherName = "";
 var choicesSelected = 0;
+var gameResults = "";
+
 
 $(document).ready(function() {
 
+    gameResultsRef.set({
+        gameResults: gameResults
+    })
+
+    gameResultsRef.on('value', function(snapshot) {
+
+        $('#game-results').html('<h2>' + snapshot.val().gameResults);
+    })
 
     //Check player count value in db. Trigger startGame function once value equal to 2
     playerCount.on("value", function(snapshot) {
@@ -115,7 +126,8 @@ $(document).ready(function() {
             var userRef = database.ref('presence/' + currentPlayer);
             amConnected.on('value', function(snapshot) {
                 if (snapshot.val()) {
-                    userRef.onDisconnect().remove();
+
+                    database.ref('players/' + currentPlayer + '/').onDisconnect().remove();
                     userRef.set(true);
                 }
             });
@@ -127,12 +139,32 @@ $(document).ready(function() {
         $('.choice-1').hide();
         $('.choice-2').hide();
         var otherGuy = database.ref('players/' + otherPlayer + '/');
+        var currentGuy = database.ref('players/' + currentPlayer + '/');
+
+        currentGuy.on('value', function(snapshot) {
+
+            var data = snapshot.val();
+            var currentGuyName = data.name;
+            var currentGuyWins = data.wins;
+            var currentGuyLosses = data.losses;
+            $('#game-results').html('<h4 id="results"></h4>');
+            if (currentPlayer === 1) {
+                $('#player-1').html('<h2>' + currentGuyName)
+                    .append('<h5>Wins: ' + currentGuyWins)
+                    .append('<h5>Losses: ' + currentGuyLosses);
+            } else {
+                $('#player-2').html('<h2>' + currentGuyName)
+                    .append('<h5>Wins: ' + currentGuyWins)
+                    .append('<h5>Losses: ' + currentGuyLosses);
+            }
+        })
 
         otherGuy.on('value', function(snapshot) {
             var data = snapshot.val();
             var otherGuyName = data.name;
             var otherGuyWins = data.wins;
             var otherGuyLosses = data.losses;
+            $('#game-results').html('<h4 id="results"></h4>');
             if (currentPlayer === 1) {
                 $('#player-2').html('<h2>' + otherGuyName)
                     .append('<h5>Wins: ' + otherGuyWins)
@@ -179,8 +211,10 @@ $(document).ready(function() {
 
         var choice = "";
         var dbChoice = database.ref('players/' + currentPlayer + '/choice');
+        var otherDbChoice = database.ref('players/' + otherPlayer + '/choice');
         dbChoice.set(choice);
-
+        otherDbChoice.set(choice);
+        $('#game-results').html('<h4 id="results"></h4>');
     }
 
 
@@ -188,13 +222,19 @@ $(document).ready(function() {
     function makeChoices() {
 
         var choice = $(this).attr('data-choice');
-        console.log(choice);
+
         var dbChoice = database.ref('players/' + currentPlayer + '/choice');
         dbChoice.set(choice);
+        console.log(choice);
 
         database.ref('players/' + otherPlayer + '/choice').on('value', function(snapshot) {
-            // compareChoices();
+            compareChoices();
         });
+
+        //Hide the buttons
+
+        $('.choice-1').hide();
+        $('.choice-2').hide();
 
         var dbturn = database.ref('turn');
         dbturn.once('value', function(snapshot) {
@@ -210,6 +250,103 @@ $(document).ready(function() {
 
     $('.choice-1').on('click', makeChoices);
     $('.choice-2').on('click', makeChoices);
+
+    function compareChoices() {
+
+        database.ref().once("value", function(snapshot) {
+
+            var playerName = snapshot.child('players/' + currentPlayer + '/name').val();
+            var playerChoice = snapshot.child('players/' + currentPlayer + '/choice').val();
+            var playerWins = snapshot.child('players/' + currentPlayer + '/wins').val();
+            var playerLosses = snapshot.child('players/' + currentPlayer + '/losses').val();
+            var otherName = snapshot.child('players/' + otherPlayer + '/name').val();
+            var otherPlayerChoice = snapshot.child('players/' + otherPlayer + '/choice').val();
+            var otherPlayerWins = snapshot.child('players/' + otherPlayer + '/wins').val();
+            var otherPlayerLosses = snapshot.child('players/' + otherPlayer + '/losses').val();
+            var dbChoicesSelected = database.ref('choice_selections');
+            var gameResults = snapshot.child
+
+
+            if (playerChoice === "paper") {
+                if (otherPlayerChoice === "scissors") {
+                    otherPlayerWins++;
+                    playerLosses++;
+                    database.ref('players/' + currentPlayer + '/losses').set(playerLosses);
+                    database.ref('players/' + otherPlayer + '/wins').set(otherPlayerWins);
+                    gameResults = otherName + ' wins!';
+                    gameResultsRef.update({ gameResults: gameResults });
+                    setTimeout(resetChoice, 3000);
+                } else if (otherPlayerChoice === "rock") {
+                    playerWins++;
+                    otherPlayerLosses++;
+                    database.ref('players/' + currentPlayer + '/wins').set(playerWins);
+                    database.ref('players/' + otherPlayer + '/losses').set(otherPlayerLosses);
+                    gameResults = playerName + ' wins!';
+                    gameResultsRef.update({ gameResults: gameResults });
+                    setTimeout(resetChoice, 3000);
+                } else if (otherPlayerChoice === "paper") {
+                    gameResults = 'It\'s a tie!';
+                    gameResultsRef.update({ gameResults: gameResults });
+                    setTimeout(resetChoice, 3000);
+                }
+
+
+            } else if (playerChoice === "rock") {
+                if (otherPlayerChoice === "paper") {
+                    otherPlayerWins++;
+                    playerLosses++;
+                    database.ref('players/' + currentPlayer + '/losses').set(playerLosses);
+                    database.ref('players/' + otherPlayer + '/wins').set(otherPlayerWins);
+                    gameResults = otherName + ' wins!';
+                    gameResultsRef.update({ gameResults: gameResults });
+
+                    setTimeout(resetChoice, 3000);
+                } else if (otherPlayerChoice === "scissors") {
+                    playerWins++;
+                    otherPlayerLosses++;
+                    database.ref('players/' + currentPlayer + '/wins').set(playerWins);
+                    database.ref('players/' + otherPlayer + '/losses').set(otherPlayerLosses);
+                    gameResults = playerName + ' wins!';
+                    gameResultsRef.update({ gameResults: gameResults });
+
+                    setTimeout(resetChoice, 3000);
+                } else if (otherPlayerChoice === "rock") {
+                    gameResults = 'It\'s a tie!';
+                    gameResultsRef.update({ gameResults: gameResults });
+
+                    setTimeout(resetChoice, 3000);
+                }
+            } else if (playerChoice === "scissors") {
+                if (otherPlayerChoice === "rock") {
+                    otherPlayerWins++;
+                    playerLosses++;
+                    database.ref('players/' + currentPlayer + '/losses').set(playerLosses);
+                    database.ref('players/' + otherPlayer + '/wins').set(otherPlayerWins);
+                    gameResults = otherName + ' wins!';
+                    gameResultsRef.update({ gameResults: gameResults });
+
+                    setTimeout(resetChoice, 3000);
+                } else if (otherPlayerChoice === "paper") {
+                    playerWins++;
+                    otherPlayerLosses++;
+                    database.ref('players/' + currentPlayer + '/wins').set(playerWins);
+                    database.ref('players/' + otherPlayer + '/losses').set(otherPlayerLosses);
+                    gameResults = playerName + ' wins!';
+                    gameResultsRef.update({ gameResults: gameResults });
+
+                    setTimeout(resetChoice, 3000);
+                } else if (otherPlayerChoice === "scissors") {
+                    gameResults = 'It\'s a tie!';
+                    gameResultsRef.update({ gameResults: gameResults });
+                    setTimeout(resetChoice, 3000);
+
+                }
+            }
+
+        });
+    }
+
+
     //Chat feature
     $('#chat').on('click', function() {
 
