@@ -125,21 +125,6 @@ $(document).ready(function() {
         });
     }
 
-    firebase.auth().onAuthStateChanged(firebaseUser => {
-
-        if (currentPlayer === 1) {
-            database.ref().child('players').child(1).remove();
-
-        } else {
-            database.ref().child('players').child(2).remove();
-        }
-
-
-
-        // $('#start').show();
-        // $('#username').show();
-
-    });
 
     function startGame() {
 
@@ -153,7 +138,7 @@ $(document).ready(function() {
         var currentGuy = database.ref('players/' + currentPlayer + '/');
 
         currentGuy.on('value', function(snapshot) {
-
+            console.log('currentplayer is : ' + currentPlayer);
             var data = snapshot.val();
             var currentGuyName = data.name;
             var currentGuyWins = data.wins;
@@ -169,6 +154,9 @@ $(document).ready(function() {
                     .append('<h5>Losses: ' + currentGuyLosses);
             }
         })
+
+
+
 
         otherGuy.on('value', function(snapshot) {
             var data = snapshot.val();
@@ -187,9 +175,14 @@ $(document).ready(function() {
             }
         });
 
+        if (currentGuy.onDisconnect().remove()) {
+
+            playerCount.set(numPlayers - 1);
+            choice = null;
+            chatRef.empty();
+        }
 
         database.ref('turn').set(1);
-
 
         database.ref('turn').on('value', function(snapshot) {
 
