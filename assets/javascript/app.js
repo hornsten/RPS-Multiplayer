@@ -34,13 +34,12 @@ $('.choice-2').hide();
 
 $(document).ready(function() {
 
-
     gameResultsRef.set({
         gameResults: gameResults
     })
 
 
-    //Check player count value in db. Trigger startGame function once value equal to 2
+    //Check player count value in database. Trigger startGame function once value equal to 2
     playerCount.on("value", function(snapshot) {
         numPlayers = snapshot.val();
         if (numPlayers === 2) {
@@ -130,21 +129,23 @@ $(document).ready(function() {
 
     function startGame() {
 
+        //Sets up a listener for the game results
         gameResultsRef.on('value', function(snapshot) {
 
             $('#game-results').html('<h2>' + snapshot.val().gameResults);
         })
-        $('.choice-1').hide();
-        $('.choice-2').hide();
+
+
         var otherGuy = database.ref('players/' + otherPlayer + '/');
         var currentGuy = database.ref('players/' + currentPlayer + '/');
 
         currentGuy.on('value', function(snapshot) {
-            console.log('currentplayer is : ' + currentPlayer);
+
             var data = snapshot.val();
             var currentGuyName = data.name;
             var currentGuyWins = data.wins;
             var currentGuyLosses = data.losses;
+
             $('#game-results').html('<h4 id="results"></h4>');
             if (currentPlayer === 1) {
                 $('#player-1').html('<h2>' + currentGuyName)
@@ -174,12 +175,14 @@ $(document).ready(function() {
             }
         });
 
+        //Empties out the player Database if user leaves the game
         if (currentGuy.onDisconnect().remove()) {
 
             playerCount.set(numPlayers - 1);
             choice = null;
-
         }
+
+        //Chat bot sends messages
 
         database.ref('players').on('child_removed', taunt);
 
@@ -239,7 +242,6 @@ $(document).ready(function() {
 
         var dbChoice = database.ref('players/' + currentPlayer + '/choice');
         dbChoice.set(choice);
-        console.log(choice);
 
         database.ref('players/' + otherPlayer + '/choice').on('value', function(snapshot) {
             compareChoices();
