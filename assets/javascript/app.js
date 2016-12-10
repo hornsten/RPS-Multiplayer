@@ -10,6 +10,7 @@ var config = {
 firebase.initializeApp(config);
 
 var database = firebase.database();
+var players = database.ref('players');
 var playerCount = database.ref('playerCount');
 var gameResultsRef = database.ref('gameResults');
 
@@ -18,27 +19,25 @@ var player = {
     name: "",
     choice: "",
     wins: 0,
-    losses: 0
+    losses: 0,
+    uid: ""
 };
 
 var currentPlayer = null;
 var otherPlayer = null;
 var numPlayers = null;
 var otherName = "";
-var choicesSelected = 0;
+
 var gameResults = "";
 
 
 $(document).ready(function() {
 
+
     gameResultsRef.set({
         gameResults: gameResults
     })
 
-    gameResultsRef.on('value', function(snapshot) {
-
-        $('#game-results').html('<h2>' + snapshot.val().gameResults);
-    })
 
     //Check player count value in db. Trigger startGame function once value equal to 2
     playerCount.on("value", function(snapshot) {
@@ -58,9 +57,10 @@ $(document).ready(function() {
     var addPlayerButton = $('#start');
 
     function addPlayers() {
-
+        firebase.auth().signInAnonymously();
         var playerName = $('#username').val().trim();
         player.name = playerName;
+        player.uid = firebase.auth().currentUser.uid;
 
         database.ref().once('value').then(function(snapshot) {
 
@@ -122,20 +122,31 @@ $(document).ready(function() {
                 return;
             }
 
-            var amConnected = database.ref(".info/connected");
-            var userRef = database.ref('presence/' + currentPlayer);
-            amConnected.on('value', function(snapshot) {
-                if (snapshot.val()) {
-
-                    database.ref('players/' + currentPlayer + '/').onDisconnect().remove();
-                    userRef.set(true);
-                }
-            });
-
         });
     }
 
+    firebase.auth().onAuthStateChanged(firebaseUser => {
+
+        if (currentPlayer === 1) {
+            database.ref().child('players').child(1).remove();
+
+        } else {
+            database.ref().child('players').child(2).remove();
+        }
+
+
+
+        // $('#start').show();
+        // $('#username').show();
+
+    });
+
     function startGame() {
+
+        gameResultsRef.on('value', function(snapshot) {
+
+            $('#game-results').html('<h2>' + snapshot.val().gameResults);
+        })
         $('.choice-1').hide();
         $('.choice-2').hide();
         var otherGuy = database.ref('players/' + otherPlayer + '/');
@@ -176,7 +187,7 @@ $(document).ready(function() {
             }
         });
 
-        database.ref('choice_selections').set(choicesSelected);
+
         database.ref('turn').set(1);
 
 
@@ -215,6 +226,7 @@ $(document).ready(function() {
         dbChoice.set(choice);
         otherDbChoice.set(choice);
         $('#game-results').html('<h4 id="results"></h4>');
+
     }
 
 
@@ -263,7 +275,7 @@ $(document).ready(function() {
             var otherPlayerChoice = snapshot.child('players/' + otherPlayer + '/choice').val();
             var otherPlayerWins = snapshot.child('players/' + otherPlayer + '/wins').val();
             var otherPlayerLosses = snapshot.child('players/' + otherPlayer + '/losses').val();
-            var dbChoicesSelected = database.ref('choice_selections');
+
             var gameResults = snapshot.child
 
 
@@ -275,7 +287,7 @@ $(document).ready(function() {
                     database.ref('players/' + otherPlayer + '/wins').set(otherPlayerWins);
                     gameResults = otherName + ' wins!';
                     gameResultsRef.update({ gameResults: gameResults });
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 } else if (otherPlayerChoice === "rock") {
                     playerWins++;
                     otherPlayerLosses++;
@@ -283,11 +295,11 @@ $(document).ready(function() {
                     database.ref('players/' + otherPlayer + '/losses').set(otherPlayerLosses);
                     gameResults = playerName + ' wins!';
                     gameResultsRef.update({ gameResults: gameResults });
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 } else if (otherPlayerChoice === "paper") {
                     gameResults = 'It\'s a tie!';
                     gameResultsRef.update({ gameResults: gameResults });
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 }
 
 
@@ -300,7 +312,7 @@ $(document).ready(function() {
                     gameResults = otherName + ' wins!';
                     gameResultsRef.update({ gameResults: gameResults });
 
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 } else if (otherPlayerChoice === "scissors") {
                     playerWins++;
                     otherPlayerLosses++;
@@ -309,12 +321,12 @@ $(document).ready(function() {
                     gameResults = playerName + ' wins!';
                     gameResultsRef.update({ gameResults: gameResults });
 
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 } else if (otherPlayerChoice === "rock") {
                     gameResults = 'It\'s a tie!';
                     gameResultsRef.update({ gameResults: gameResults });
 
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2000);
                 }
             } else if (playerChoice === "scissors") {
                 if (otherPlayerChoice === "rock") {
@@ -325,7 +337,7 @@ $(document).ready(function() {
                     gameResults = otherName + ' wins!';
                     gameResultsRef.update({ gameResults: gameResults });
 
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 } else if (otherPlayerChoice === "paper") {
                     playerWins++;
                     otherPlayerLosses++;
@@ -334,11 +346,11 @@ $(document).ready(function() {
                     gameResults = playerName + ' wins!';
                     gameResultsRef.update({ gameResults: gameResults });
 
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2500);
                 } else if (otherPlayerChoice === "scissors") {
                     gameResults = 'It\'s a tie!';
                     gameResultsRef.update({ gameResults: gameResults });
-                    setTimeout(resetChoice, 3000);
+                    setTimeout(resetChoice, 2000);
 
                 }
             }
