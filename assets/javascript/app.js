@@ -182,6 +182,17 @@ $(document).ready(function() {
 
         }
 
+        database.ref('players').on('child_removed', taunt);
+
+        database.ref('players').on('child_changed', sarcasm);
+
+        function taunt() {
+            chatLog.html('Chat Bot: You have been abandoned. How sad.');
+        }
+
+        function sarcasm() {
+            chatLog.html('Chat Bot: Look, a friend wants to play with you.  And this time it\'s not even your mom.');
+        }
         database.ref('turn').set(1);
 
         database.ref('turn').on('value', function(snapshot) {
