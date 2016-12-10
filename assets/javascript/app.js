@@ -29,7 +29,8 @@ var numPlayers = null;
 var otherName = "";
 
 var gameResults = "";
-
+$('.choice-1').hide();
+$('.choice-2').hide();
 
 $(document).ready(function() {
 
@@ -88,6 +89,7 @@ $(document).ready(function() {
                         playerCount.set(numPlayers);
                     }
                 });
+
             } else if (!snapshot.child('players/2').exists()) {
 
                 database.ref('players/2/').update(player);
@@ -155,9 +157,6 @@ $(document).ready(function() {
             }
         })
 
-
-
-
         otherGuy.on('value', function(snapshot) {
             var data = snapshot.val();
             var otherGuyName = data.name;
@@ -184,7 +183,7 @@ $(document).ready(function() {
 
         database.ref('players').on('child_removed', taunt);
 
-        database.ref('players').on('child_changed', sarcasm);
+        database.ref('players').on('child_added', sarcasm);
 
         function taunt() {
             chatLog.html('Chat Bot: You have been abandoned. How sad.');
@@ -193,6 +192,7 @@ $(document).ready(function() {
         function sarcasm() {
             chatLog.html('Chat Bot: Look, a friend wants to play with you.  And this time it\'s not even your mom.');
         }
+
         database.ref('turn').set(1);
 
         database.ref('turn').on('value', function(snapshot) {
@@ -233,8 +233,6 @@ $(document).ready(function() {
 
     }
 
-
-
     function makeChoices() {
 
         var choice = $(this).attr('data-choice');
@@ -263,6 +261,7 @@ $(document).ready(function() {
             }
         });
     }
+
 
     $('.choice-1').on('click', makeChoices);
     $('.choice-2').on('click', makeChoices);
