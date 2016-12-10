@@ -179,7 +179,7 @@ $(document).ready(function() {
 
             playerCount.set(numPlayers - 1);
             choice = null;
-            chatRef.empty();
+
         }
 
         database.ref('turn').set(1);
