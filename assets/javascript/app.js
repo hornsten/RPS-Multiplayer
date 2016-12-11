@@ -49,7 +49,6 @@ $(document).ready(function() {
 
     $('#start').on('click', addPlayers);
 
-    //Chat feature
     var chatRef = database.ref().child('chat');
     var messageField = $('#message');
     var chatLog = $('#chat-log');
@@ -75,7 +74,7 @@ $(document).ready(function() {
                 otherPlayer = 2;
                 nameField.hide();
                 addPlayerButton.hide();
-                $('#status').html('<h4>Hi, ' + player.name + '! You are Player ' + currentPlayer + '</h4>');
+                $('#status').html('<h3>Hi, ' + player.name + '! You are Player ' + currentPlayer + '</h3>');
 
                 //Snapshot of database for player count
                 playerCount.once('value').then(function(snapshot) {
@@ -102,7 +101,7 @@ $(document).ready(function() {
 
                 nameField.hide();
                 addPlayerButton.hide();
-                $('#status').html('<h4>Hi, ' + player.name + '! You are Player ' + currentPlayer);
+                $('#status').html('<h3>Hi, ' + player.name + '! You are Player ' + currentPlayer);
 
                 //Snapshot of database for player count after Player 2 is added
 
@@ -207,7 +206,7 @@ $(document).ready(function() {
                 $('#box-' + currentPlayer).addClass('turn');
                 $('#box-' + otherPlayer).removeClass('turn');
                 $('.choice-' + currentPlayer).show();
-                $('#status').html('It is ' + player.name + '\'s turn');
+                $('#status').html('<h3>It is ' + player.name + '\'s turn</h3>');
 
             } else {
                 $('#box-' + currentPlayer).removeClass('turn');
@@ -218,7 +217,7 @@ $(document).ready(function() {
                 otherName.once('value', function(snapshot) {
                     otherName = snapshot.val();
                     //Indicate that it is the opponent's turn
-                    $('#status').html('It is ' + otherName + '\'s turn');
+                    $('#status').html('<h3>It is ' + otherName + '\'s turn</h3>');
                 });
 
             }
@@ -263,7 +262,6 @@ $(document).ready(function() {
             }
         });
     }
-
 
     $('.choice-1').on('click', makeChoices);
     $('.choice-2').on('click', makeChoices);
