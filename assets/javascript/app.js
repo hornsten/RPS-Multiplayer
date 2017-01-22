@@ -55,6 +55,10 @@ $(document).ready(function() {
     var nameField = $('#username');
     var addPlayerButton = $('#start');
 
+    chatRef.onDisconnect().remove();
+    gameResultsRef.onDisconnect().remove();
+    database.ref('turn').onDisconnect().remove();
+
     function addPlayers() {
         firebase.auth().signInAnonymously();
         var playerName = $('#username').val().trim();
