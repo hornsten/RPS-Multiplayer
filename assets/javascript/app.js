@@ -56,8 +56,6 @@ $(document).ready(function() {
     var addPlayerButton = $('#start');
 
     chatRef.onDisconnect().remove();
-    gameResultsRef.onDisconnect().remove();
-    database.ref('turn').onDisconnect().remove();
 
     function addPlayers() {
         firebase.auth().signInAnonymously();
